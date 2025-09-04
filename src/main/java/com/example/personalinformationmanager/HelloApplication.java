@@ -29,14 +29,9 @@ public class HelloApplication extends Application {
     private TextField nameField;
     private TextField emailField;
     private TextField phoneField;
-    private List<String> contacts = new ArrayList<>();
+    private List<String> contacts=new ArrayList<>();
 
-
-    private Button contact = new Button();
-    private Button clear = new Button();
-    private Button display = new Button();
-
-    private Label state=new Label();
+    private Label state;
 
 
     @Override
@@ -46,11 +41,11 @@ public class HelloApplication extends Application {
         primaryStage.setScene(scene);
         primaryStage.setResizable(false);
 
-//        scene.setOnKeyPressed(event -> {
-//            if (event.getCode() == KeyCode.ENTER) {
-//                this::addContact;
-//            }
-//        });
+        scene.setOnKeyPressed(event -> {//enter key shortcut, directly add contact
+            if (event.getCode() == KeyCode.ENTER) {
+                addContact();
+            }
+        });
 
         primaryStage.show();
     }
@@ -63,6 +58,7 @@ public class HelloApplication extends Application {
                 "-fx-background-color: white; -fx-text-fill: black; " +
                 "-fx-font-family: 'Courier New', monospace;" + "-fx-font-weight: bold");
 
+        state=new Label();
         state.setText("");//indicate add contact successful
         state.setStyle("-fx-font-size: 27px; -fx-padding: 8px; " +
                 "-fx-background-color: white; -fx-text-fill: black; " +
@@ -122,9 +118,11 @@ public class HelloApplication extends Application {
 
     private HBox button() { //three buttons
         HBox hBox = new HBox(10);
-        contact.setText("Add Contact");
-        clear.setText("Clear Fields");
-        display.setText("Display All");
+
+        Button contact=new Button("Add Contact");
+        Button clear=new Button("Clear Fields");
+        Button display=new Button("Display All");
+
         contact.setStyle("-fx-background-color: #8293e0; " +
                 "-fx-text-fill: white; " +
                 "-fx-font-size: 20px; " +
@@ -145,22 +143,20 @@ public class HelloApplication extends Application {
                 "-fx-border-radius: 8px;");
 
         //events for three buttons
-        clear.setOnAction(actionEvent -> clearFields());
-        contact.setOnAction(this::addContact);
+        clear.setOnAction(this::clearFields);
+        contact.setOnAction(actionEvent -> addContact());
         display.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent event) {
                 // Show all contacts
                 Stage stage2 = new Stage();
-                Scene scene2 = new Scene(displayContact(), 500, 400);
+                Scene scene2 = new Scene(displayContact(), 800, 500);
                 stage2.setScene(scene2);
                 stage2.setResizable(false);
                 stage2.show();
 
             }
         });
-
-
 
         hBox.getChildren().addAll(contact, clear, display);
         hBox.setAlignment(Pos.BASELINE_CENTER);
@@ -169,52 +165,54 @@ public class HelloApplication extends Application {
 
     private VBox displayContact() {//another stage for displaying ocntacts
         VBox vBox = new VBox(10);
-        String content = new String();
+        String content = "";
         Label contact = new Label();
         Label title = new Label();
         title.setText("All My Contacts");
         title.setStyle("-fx-font-size: 27px; -fx-padding: 8px; " +
                 " -fx-text-fill: black; " + "-fx-font-family: 'Courier New', monospace;" + "-fx-font-weight: bold");
         title.setAlignment(Pos.CENTER);
+
         int num=0;
         for (int i = 0; i < contacts.size(); i++) {
             num=i+1;
             content = content +"Contact "+num+" "+ contacts.get(i) + "\n";
         }
         contact.setText(content);
-        contact.setStyle("-fx-font-size: 15px; -fx-padding: 8px; " +
+        contact.setStyle("-fx-font-size: 15px; -fx-padding: 7px; " +
                 " -fx-text-fill: black; " + "-fx-font-family: 'Courier New', monospace;" + "-fx-font-weight: bold");
         vBox.getChildren().addAll(title, contact);
         return vBox;
     }
 
-    private void addContact(ActionEvent event) {//method for adding contact
+    private void addContact() {//method for adding contact
         // Handle adding a contact
-        boolean isSuccessful=true;
-        Timeline timeline=new Timeline(new KeyFrame(Duration.seconds(1), actionEvent -> state.setText("")));//add successful
+        boolean isSuccessful = true;
+        Timeline timeline = new Timeline(new KeyFrame(Duration.seconds(1), actionEvent -> state.setText("")));//add successful
         timeline.play();
 
-        String phone=phoneField.getText(0,3)+phoneField.getText(4,7)+phoneField.getText(8, phoneField.getText().length());
-        System.out.println(phone);
-
+        if (phoneField.getText().length() >= 10) {//ensure phone number has correct format
+            String phone = phoneField.getText(0, 3) + phoneField.getText(4, 7) + phoneField.getText(8, phoneField.getText().length());
         try{
-            int x=Integer.parseInt(phone);
+            long x=Long.parseLong(phone);
+
         } catch(NumberFormatException error)
         {
             state.setText("Phone number invalid");
             isSuccessful=false;
         }
-
-        if(isSuccessful)
-        {
-            state.setText("Add Contact Successful");
-            contacts.add("Name: " + nameField.getText() + " " + "Email: " + emailField.getText() + " " + "Phone: " + phoneField.getText());
-
+            if (isSuccessful) {
+                state.setText("Add Contact Successful");
+                contacts.add("Name: " + nameField.getText() + " " + "Email: " + emailField.getText() + " " + "Phone: " + phoneField.getText());
+            }
         }
-
+        else
+        {
+            state.setText("Invalid Phone number");
+        }
     }
 
-    private void clearFields() {//clear text fields
+    private void clearFields(ActionEvent event) {//clear text fields
         state.setText("");
         nameField.clear();
         emailField.clear();
