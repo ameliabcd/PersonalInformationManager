@@ -99,7 +99,7 @@ public class HelloApplication extends Application {
         phoneField = new TextField("");
         nameField.setPromptText("Enter full name");
         emailField.setPromptText("name@email.com");
-        phoneField.setPromptText("555-123-4567");
+        phoneField.setPromptText("555-123-4567 (at least 10 digits)");
         nameField.setAlignment(Pos.BASELINE_LEFT);
         emailField.setAlignment(Pos.BASELINE_LEFT);
         phoneField.setAlignment(Pos.BASELINE_LEFT);
@@ -193,24 +193,50 @@ public class HelloApplication extends Application {
 
         if (phoneField.getText().length() >= 10) {//ensure phone number has correct format
             String phone = phoneField.getText(0, 3) + phoneField.getText(4, 7) + phoneField.getText(8, phoneField.getText().length());
-        try{
-            long x=Long.parseLong(phone);
+            try {
+                long x = Long.parseLong(phone);
 
-        } catch(NumberFormatException error)
-        {
-            state.setText("Phone number invalid");
-            isSuccessful=false;
-        }
-            if (isSuccessful) {
-                state.setText("Add Contact Successful");
-                contacts.add("Name: " + nameField.getText() + " " + "Email: " + emailField.getText() + " " + "Phone: " + phoneField.getText());
+            } catch (NumberFormatException error) {
+                state.setText("Invalid phone number");
+                isSuccessful = false;
             }
         }
         else
         {
-            state.setText("Invalid Phone number");
+            state.setText("Invalid phone number");
+            isSuccessful=false;
         }
-    }
+
+
+        String num="";//check whether name contains number or not
+        for(int i=0;i<=9;i++)
+        {
+            num= String.valueOf(i);
+            if(nameField.getText().contains(num))
+            {
+                state.setText("Invalid name");
+                isSuccessful=false;
+                break;
+            }
+        }
+
+        //check whether email contains @ or not
+       if(!emailField.getText().contains("@"))
+       {
+//           boolean x = emailField.getText().indexOf("@")==emailField.getText().length()-1 || emailField.getText().indexOf("@")==0 ;
+//           System.out.println(x);
+//           if(!x)
+           state.setText("Invalid email");
+           isSuccessful=false;
+       }
+
+        if (isSuccessful) {
+            state.setText("Add Contact Successful");
+            contacts.add("Name: " + nameField.getText() + " " + "Email: " + emailField.getText() + " " + "Phone: " + phoneField.getText());
+        }
+
+        }
+
 
     private void clearFields(ActionEvent event) {//clear text fields
         state.setText("");
